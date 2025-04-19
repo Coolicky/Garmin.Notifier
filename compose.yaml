@@ -1,0 +1,7 @@
+﻿services:
+  garmin.notifier:
+    image: garmin.notifier
+    build:
+      context: .
+      dockerfile: Garmin.Notifier/Dockerfile
+
