@@ -9,4 +9,11 @@ builder.Services.AddHostedService<Worker>();
 builder.Services.RegisterNotifiers(builder.Configuration);
 
 var host = builder.Build();
-host.Run();
+await host.ValidateOptionsAndNotifiers();
+try
+{
+    host.Run();
+}
+catch (OperationCanceledException e)
+{
+}

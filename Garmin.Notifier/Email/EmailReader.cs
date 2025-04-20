@@ -9,7 +9,7 @@ namespace Garmin.Notifier.Email;
 public class EmailReader : IDisposable, IEmailReader
 {
     private readonly EmailOptions _options;
-    private readonly ImapClient _client;
+    private ImapClient _client;
     private string? _url;
 
     public EmailReader(IOptions<EmailOptions> options)
@@ -18,37 +18,61 @@ public class EmailReader : IDisposable, IEmailReader
         _client = new ImapClient();
     }
 
+    public async Task<bool> Connect()
+    {
+        try
+        {
+            await _client.ConnectAsync(_options.Host, _options.Port, _options.UseSsl);
+            await _client.AuthenticateAsync(_options.Username, _options.Password);
+            await _client.DisconnectAsync(true);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+        return true;
+    }
+
     public async Task<bool> IsEmailAvailable(CancellationToken stoppingToken, DateTime lastRun)
     {
-        await _client.ConnectAsync(_options.Host, _options.Port, _options.UseSsl, stoppingToken);
-        await _client.AuthenticateAsync(_options.Username, _options.Password, stoppingToken);
-
-        var inbox = _client.Inbox;
-        await inbox.OpenAsync(FolderAccess.ReadOnly, stoppingToken);
-
-        if (inbox.Count < 1) return false;
-
-        var current = inbox.Count;
-        while (inbox.Count > 0 && current > 0)
+        try
         {
-            var message = await inbox.GetMessageAsync(inbox.Count - 1, stoppingToken);
-            if (message.Date < lastRun)
+            await _client.ConnectAsync(_options.Host, _options.Port, _options.UseSsl, stoppingToken);
+            await _client.AuthenticateAsync(_options.Username, _options.Password, stoppingToken);
+
+            var inbox = _client.Inbox;
+            await inbox.OpenAsync(FolderAccess.ReadOnly, stoppingToken);
+
+            if (inbox.Count < 1) return false;
+
+            var current = inbox.Count;
+            while (inbox.Count > 0 && current > 0)
             {
-                break;
+                var message = await inbox.GetMessageAsync(inbox.Count - 1, stoppingToken);
+                if (message.Date < lastRun)
+                {
+                    // break;
+                }
+
+                if (!IsGarminMessage(message)) continue;
+                _url = GetGarminUrl(message);
+                if (_url != null)
+                {
+                    await _client.DisconnectAsync(true, stoppingToken);
+                    return true;
+                }
+
+                current--;
             }
 
-            if (!IsGarminMessage(message)) continue;
-            _url = GetGarminUrl(message);
-            if (_url != null)
-            {
-                await _client.DisconnectAsync(true, stoppingToken);
-                return true;
-            }
-
-            current--;
+            await _client.DisconnectAsync(true, stoppingToken);
         }
-
-        await _client.DisconnectAsync(true, stoppingToken);
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         return false;
     }
 
