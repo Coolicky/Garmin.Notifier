@@ -53,12 +53,13 @@ public class Worker : BackgroundService
                 var notifiers = GetNotifiers();
                 foreach (var notifier in notifiers)
                 {
+                    _logger.LogInformation("Notifying {notifier}", notifier.GetType().Name);
                     await notifier.Notify(url, stoppingToken);
                 }
             }
 
             _lastRun = DateTime.Now;
-            _logger.LogInformation("No new emails found, waiting for 1 minute...");
+            _logger.LogInformation("Waiting for 1 minute...");
             await Wait(stoppingToken);
         }
     }

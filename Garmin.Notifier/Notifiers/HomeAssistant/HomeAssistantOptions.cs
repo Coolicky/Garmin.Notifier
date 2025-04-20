@@ -2,7 +2,7 @@ namespace Garmin.Notifier.Notifiers.HomeAssistant;
 
 public class HomeAssistantOptions : INotifierOptions
 {
-    public static string Prefix => "homeassistant";
+    public static string Prefix => "HomeAssistant";
 
     public bool IsValid()
     {
