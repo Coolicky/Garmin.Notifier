@@ -35,7 +35,7 @@ public class HomeAssistantNotifier : INotifier
             }
         };
 
-        foreach (var entityId in _options.EntityIds)
+        foreach (var entityId in _options.EntityIdList)
         {
             var url = string.Format(Url, _options.Url, entityId);
 

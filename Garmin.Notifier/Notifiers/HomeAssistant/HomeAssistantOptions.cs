@@ -6,7 +6,7 @@ public class HomeAssistantOptions : INotifierOptions
 
     public bool IsValid()
     {
-        if (EntityIds.Length < 1)
+        if (EntityIds.Split(',').Length < 1)
             return false;
         if (string.IsNullOrEmpty(Title))
             return false;
@@ -17,10 +17,10 @@ public class HomeAssistantOptions : INotifierOptions
         return true;
     }
 
-    public string[] EntityIds { get; set; } = [];
+    public string EntityIds { get; set; } = "";
     public string? Message { get; set; }
     public string Title { get; set; } = "";
     public string Url { get; set; } = "";
     public string Token { get; set; } = "";
-
+    public string[] EntityIdList => EntityIds.Split(',').Select(e => e.Trim()).ToArray();
 }
