@@ -29,3 +29,12 @@ services:
       - HomeAssistant__Url=https://home.domain.com #Replace with your Home Assistant URL
       - HomeAssistant__Token=TOKEN #Replace with your Home Assistant long-lived access token
 ```
+Example for Gmail
+
+```yml
+- Imap__Host=imap.gmail.com
+- Imap__Port=993
+- Imap__UseSsl=true
+- Imap__Username=YOUR_EMAIL@gmail.com
+- Imap__Password=YOUR_PASSWORD
+```
