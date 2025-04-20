@@ -52,7 +52,7 @@ public class EmailReader : IDisposable, IEmailReader
                 var message = await inbox.GetMessageAsync(inbox.Count - 1, stoppingToken);
                 if (message.Date < lastRun)
                 {
-                    // break;
+                    break;
                 }
 
                 if (!IsGarminMessage(message)) continue;
